@@ -1,7 +1,9 @@
-from slightstalkie.arduino_interface import ArduinoInterface
+#!/usr/bin/env python3
+from arduino_interface import ArduinoInterface
 import argparse
-from slights_voice.speech import Interepreter
-from slights_voice.speech import SnowBoyListener
+from speech import Interepreter, Unrecognized
+import os
+from stranger_speech import SnowBoyListener
 
 
 
@@ -31,7 +33,8 @@ def main():
     arduino_comm = ArduinoInterface(args.serial)
     interpreter = Interepreter()
     ghost = Ghost(arduino_comm, interpreter)
-    listener=SnowBoyListener(ghost.ghostify(), args.model)
+    listener = SnowBoyListener(ghost.ghostify, args.model)
+
     listener.listen()
 
 
@@ -42,10 +45,16 @@ class Ghost(object):
         self.interpreter = interpreter
 
     def ghostify(self):
+        print("working...")
         self.arduino_comm.push_message("thinking")
-        response = self.interpreter.interpret()
+        try:
+            response = self.interpreter.interpret()
+        except Unrecognized:
+            # default if no text responded
+            response = "lightaround"
+
         self.arduino_comm.push_message(response)
 
 
-if __name__ == "main":
+if __name__ == "__main__":
     main()
