@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from arduino_interface import ArduinoInterface
 import argparse
-from speech import Interepreter, Unrecognized
+from stranger_speech import Interepreter, Unrecognized
 import os
 from stranger_speech import SnowBoyListener
 

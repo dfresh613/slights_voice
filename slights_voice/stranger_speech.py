@@ -30,38 +30,45 @@ class Interepreter(object):
     def _init_expected_phrases(self):
         self.recognizer.expect_phrase('hey will')
         self.recognizer.expect_phrase('where are you')
+        self.recognizer.expect_phrase('sound')
+        self.recognizer.expect_phrase('christmas')
 
     def interpret(self):
-        print("waiting for question...")
         failed_recognizes = 0
-        response = ""
-        recorder = aiy.audio.get_recorder()
-        recorder.start()
+        in_text = ""
 
-        while failed_recognizes <= 3 and not response:
+        while failed_recognizes <= 3 and not in_text:
+            recorder = aiy.audio.get_recorder()
+            recorder.start()
+
             try:
+                print("waiting for question")
                 in_text = self.recognizer.recognize()
                 if not in_text:
                     raise Unrecognized("no text found")
-                else:
-                    response = self.respond(in_text)
             except Exception as e:
                 failed_recognizes += 1
                 print("failed recognizing: {}".format(e))
+                recorder.stop()
+                aiy.audio._voicehat_recorder = None
 
-        recorder.stop()
-        aiy.audio._voicehat_recorder = None
-
-        if not response:
+        if not in_text:
             raise Unrecognized("No input text found after 3 tries")
-
-        return response
+        print("<< {}".format(in_text))
+        return self.respond(in_text)
 
     def respond(self, text):
         if text == "where are you":
             return "im right here"
+        elif text == "sound":
+            aiy.audio.play_wave('sounds/deeplaugh.wav')
+            aiy.audio._voicehat_recorder = None
+        elif text == "christmas":
+            return "christmas"
         else:
             return "run away"
+
+        return None
 
 
 signal.signal(signal.SIGINT, signal_handler)

@@ -20,6 +20,9 @@ class ArduinoInterface:
             sys.exit(5)
 
     def push_message(self, message):
+        if not message:
+            return
+
         print("pushing message {}".format(message))
         self.ser.write(message.encode())
 
